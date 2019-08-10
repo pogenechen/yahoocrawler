@@ -34,7 +34,7 @@ def crawl_multi_day_yahoo(tick,start_date,end_date,table_name):
     except:
         start = oldtime(start_date)
         end = oldtime(end_date)
-        res = requests.post('https://query1.finance.yahoo.com/v7/finance/download/%5E'+tick+'?period1='
+        res = requests.post('https://query1.finance.yahoo.com/v7/finance/download/'+tick+'?period1='
                         +start+'&period2='+end+'&interval=1d&events=history&crumb=x/dFUQySh9O')
         df = pd.read_csv(StringIO(res.text),index_col = 'Date')  
         df = df.reset_index()
