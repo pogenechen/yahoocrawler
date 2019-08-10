@@ -1,0 +1,46 @@
+import pandas as pd
+import datetime as dt
+from datetime import date
+import time
+import pickle
+import requests
+from io import StringIO
+origin = dt.datetime(1970,1,1)
+
+def time(date):
+    return str(int((date - origin).total_seconds())+14400)
+def oldtime(date):
+    return str(int(time(date))+3600)
+
+def crawl_multi_day_yahoo(tick,start_date,end_date,table_name):
+    start = time(start_date)
+    end = time(end_date)
+    try:
+        res = requests.post('https://query1.finance.yahoo.com/v7/finance/download/%5E'+tick+'?period1='
+                                +start+'&period2='+end+'&interval=1d&events=history&crumb=x/dFUQySh9O')
+        df = pd.read_csv(StringIO(res.text),index_col = 'Date')   
+        df = df.reset_index()
+        df['stock_id'] = table_name
+        df.columns = [c.lower() for c in df.columns]
+        df['date'] = pd.to_datetime(df['date'])
+        df = df.set_index(['stock_id', 'date'])
+        file = open('your file path%s' %table_name+'.pkl','wb')
+        pickle.dump(df,file)
+        file.close()
+    except:
+        start = oldtime(start_date)
+        end = oldtime(end_date)
+        res = requests.post('https://query1.finance.yahoo.com/v7/finance/download/%5E'+tick+'?period1='
+                        +start+'&period2='+end+'&interval=1d&events=history&crumb=x/dFUQySh9O')
+        df = pd.read_csv(StringIO(res.text),index_col = 'Date')  
+        df = df.reset_index()
+        df['stock_id'] = table_name
+        df.columns = [c.lower() for c in df.columns]
+        df['date'] = pd.to_datetime(df['date'])
+        df = df.set_index(['stock_id', 'date'])
+        file = open('your file path%s' %table_name+'.pkl','wb')
+        pickle.dump(df,file)
+        file.close()
+
+
+
